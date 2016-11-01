@@ -1,0 +1,50 @@
+-bash-4.2$ python3 fastqPrep.py -h
+usage: fastqPrep.py [format in (required)] -P33out[default] <inputfile >outputfile
+
+Handle user input for fastqPrep
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -P33in [USRINPUTTYPE], --PHRED33input [USRINPUTTYPE]
+                        Defined user input fastq quality format PHRED-33
+                        (Sanger format)
+  -P64in [USRINPUTTYPE], --PHRED64input [USRINPUTTYPE]
+                        Defined user input fastq quality format PHRED-64
+                        (Illumina format)
+  -P64Bin [USRINPUTTYPE], --PHRED64-B-offset [USRINPUTTYPE]
+                        Defined user input fastq quality format PHRED-64 with
+                        B offset in Qscore
+  -P64SOLin [USRINPUTTYPE], --PHRED64-SolexaIn [USRINPUTTYPE]
+                        Defined user input fastq quality format SOLEXA-64
+                        (prior Illumina 1.3+)
+  -P33out [USRWRITETYPE], --PHRED33output [USRWRITETYPE]
+                        Defined user output fastq quality format PHRED-33
+                        (DEFAULT)
+  -P64out [USRWRITETYPE], --PHRED64output [USRWRITETYPE]
+                        Defined user output fastq quality format PHRED-64
+  -faOut, --fasta-out   Defined user output as fasta file format.
+-bash-4.2$ python3 fastqPrep.py -P33in -P64out <illumina1.8.fastq >evaluateIllumina1.8-P64out.fastq
+Read Quality Score length does not match Sequence Read length for @QSEQ57.1244:HWI-ST593:7:1101:6807:2288#0/1. Record # 2487. Bad Sequence count is: 1.
+Read Quality Score length does not match Sequence Read length for @QSEQ57.2235:HWI-ST593:7:1101:5167:2604#0/1. Record # 2983. Bad Sequence count is: 2.
+Read Quality Score length does not match Sequence Read length for @QSEQ57.4216:HWI-ST593:7:1101:20686:2955#0/1. Record # 3476. Bad Sequence count is: 3.
+Read Quality Score length does not match Sequence Read length for @QSEQ57.8427:HWI-ST593:7:1101:17307:3915#0/2. Record # 4465. Bad Sequence count is: 4.
+Read Quality Score length does not match Sequence Read length for @QSEQ57.10161:HWI-ST593:7:1101:9723:4305#0/2. Record # 4959. Bad Sequence count is: 7.
+Input Sequence processed with 9 bad sequences or lines. FastQ records and lines have been skipped.
+Input has 0/20000 empty lines
+Processed 4994 complete FastQ records.
+
+-bash-4.2$ python3 fastqPrep.py -P64Bin -P64out <illumina1.5.fastq >evaluateIllumina1.5-P64out.fastq
+Input Sequence processed with 0 bad sequences or lines. FastQ records and lines have been skipped.
+Input has 0/20000 empty lines
+Processed 5000 complete FastQ records.
+
+
+-bash-4.2$ python3 fastqPrep.py -P64Bin <illumina1.3.fastq >evaluateIllumina1.3-P33out.fastq
+Input Sequence processed with 0 bad sequences or lines. FastQ records and lines have been skipped.
+Input has 0/4000 empty lines
+Processed 1000 complete FastQ records.
+
+-bash-4.2$ python3 fastqPrep.py -P64SOLin <solexa.fastq >evaluateSolexa-P33out.fastq
+Input Sequence processed with 0 bad sequences or lines. FastQ records and lines have been skipped.
+Input has 0/20000 empty lines
+Processed 5000 complete FastQ records.

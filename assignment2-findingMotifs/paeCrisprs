@@ -1,0 +1,14 @@
+>pyrAer1_CRISPRs_crispr1 range=chr:40777-40826 5'pad=0 3'pad=0 strand=- repeatMasking=none
+aaaaaatcaaagaaaaacttaaaaacccacaggaactatacacgcaagcc
+>pyrAer1_CRISPRs_crispr2 range=chr:45453-45502 5'pad=0 3'pad=0 strand=+ repeatMasking=none
+aaaaaatcaaagaaaaacttaaaaacccacaggaactatacacgcaagcc
+>pyrAer1_CRISPRs_crispr3 range=chr:95481-95530 5'pad=0 3'pad=0 strand=+ repeatMasking=none
+aaaaggagaaaaacttaaaaacccccaaaaacacaaatccagagatccca
+>pyrAer1_CRISPRs_crispr4 range=chr:268816-268865 5'pad=0 3'pad=0 strand=+ repeatMasking=none
+tctacctcgcgacaatcagcagagagctagacgagataagaaaggaaata
+>pyrAer1_CRISPRs_crispr5 range=chr:592221-592270 5'pad=0 3'pad=0 strand=- repeatMasking=none
+caaaaaatttataaagtgggaaaaactaacatcccgaataaaaacccaca
+>pyrAer1_CRISPRs_crispr6 range=chr:1898899-1898948 5'pad=0 3'pad=0 strand=- repeatMasking=none
+cgtatccttaatacttcgacatccttgctctgtaccagaaagtaaacatc
+>pyrAer1_CRISPRs_crispr7 range=chr:1899655-1899704 5'pad=0 3'pad=0 strand=- repeatMasking=none
+aaaaaaccaaagaaaaacttaaaaacccaaaagaactttaaacgcaagcc

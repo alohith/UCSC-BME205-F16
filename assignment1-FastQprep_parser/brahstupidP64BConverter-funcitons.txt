@@ -1,0 +1,57 @@
+def P64BtoP64(self, Qseq, readSeq):
+
+    '''Return tuple with corrected quality sequence line for P64 with B offset input and P64 output.'''
+
+    if False: #functionality can be turned off for testing.
+
+        pass
+
+    corReadSeq = list()
+
+    corQseq = list()
+    for base, score in zip(list(readSeq), list(Qseq)):
+
+    #go through the nucleotide sequence and quality sequence at the same time
+
+        if score == 'B': #evaluate for min score for this encoding
+
+            corReadSeq.append('N') #floor the nucleotide sequence if min score is found
+
+            corQseq.append(str(chr(64)))#floor the quality score to P64out format
+
+        else:
+
+            corReadSeq.append(base)#otherwise take the existing called base
+
+            corQseq.append(score)#otherwise take the existing quality score
+
+
+     return (self.readHeader,''.join(corReadSeq), self.qualHeader, ''.join(Qseq))
+
+def P64BtoP33(self, Qseq, readSeq):
+
+    '''Return tuple with corrected quality sequence line for P64 with B offset input and P33 output.'''
+
+    if False: #functionality can be turned off for testing.
+
+        pass
+
+    corReadSeq = list()
+
+    for base, score in zip(list(readSeq), list(Qseq)):
+
+    #go through the nucleotide sequence and quality sequence at the same time
+
+        if score == 'B': #evaluate for min score for this encoding
+
+            corReadSeq.append('N') #floor the nucleotide sequence if min score is found
+
+        else:
+
+            corReadSeq.append(base) #otherwise take the existing called base
+
+    translator = str.maketrans(str(chr(66))+"".join([str(chr(x)) for x in range(67,127)]),\
+
+                    str(chr(33))+"".join([str(chr(y)) for y in range(35,74)]))
+
+    return (self.readHeader,''.join(corReadSeq), self.qualHeader, str(Qseq.translate(translator)))

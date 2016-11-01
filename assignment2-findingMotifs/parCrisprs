@@ -1,0 +1,8 @@
+>pyroArse1_CRISPRs_crispr2 range=chr:999137-999186 5'pad=0 3'pad=0 strand=+ repeatMasking=none
+cacccaagaaaaacttaaaaacccaccaaaacaaacccccagaaacccca
+>pyroArse1_CRISPRs_crispr3 range=chr:1012901-1012950 5'pad=0 3'pad=0 strand=+ repeatMasking=none
+cacccaagaaaaacttaaaaacccaccaaaacaaacccccagaaacccca
+>pyroArse1_CRISPRs_crispr5 range=chr:1039140-1039189 5'pad=0 3'pad=0 strand=+ repeatMasking=none
+aaaactaaagaaaaacttaaaaacccaaaaaaaccacccacataagcggt
+>pyroArse1_CRISPRs_crispr6 range=chr:1308105-1308154 5'pad=0 3'pad=0 strand=- repeatMasking=none
+aaaagaaaaaaaacttaaaaacccacaaaaacaaaacaccagaaccccca

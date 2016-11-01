@@ -1,0 +1,62 @@
+faSeqList = ['ATGCTACGTGTG', 'TATGTTGCTAGC', 'TGATCTCGATCG', 'GCCTGGGCTAGC', 'ATCGTTAGGCTA', 'GCAGGCATGGCT']
+kmerLen = 4
+pseudo = .25
+usrIterations = 10
+testSet = ['AT','TG','TA','AT','TT']
+faSeqList = ['ATCG','TCTG','GTAC','AATC','TTGA']
+
+
+
+
+testMotif = makeRandMotif()
+evalTestMotif = Scoring(pseudo,len(testMotif),kmerLen,testMotif)
+testMotifEntropyScore = evalTestMotif.entropy()
+testMotifProfile = evalTestMotif.prProfile()
+testMotifConsensus = evalTestMotif.makeConsensus()
+
+newTestMotif = list()
+for seq in faSeqList:
+    newTestMotif.append(bestKmerSeq(seq,testMotifProfile)[0])
+
+testMotif
+newTestMotif
+evalNewTestMotif = Scoring(pseudo,len(newTestMotif),kmerLen,newTestMotif)
+newTestMotifEntropyScore = evalNewTestMotif.entropy()
+if newTestMotifEntropyScore < testMotifEntropyScore:
+    print(newTestMotifEntropyScore)
+    newTestMotifConsensus = evalNewTestMotif.makeConsensus()
+    print(newTestMotifConsensus)
+
+bestMotif = list()
+iterCount =0
+usrIterations=10
+while iterCount < usrIterations:
+    if iterCount == 0:
+        testMotif = makeRandMotif()
+        evalBestMotif = Scoring(pseudo,len(testMotif),kmerLen,testMotif)
+        bestMotifEntropyScore = evalBestMotif.entropy()
+        print("I am chaos")
+        bestMotifProfile = evalBestMotif.prProfile()
+    else:
+        bestMotifEntropyScore = bestMotif[1]
+        bestMotifConsensus = bestMotif[0]
+        bestMotifProfile = bestMotif[2]
+    newTestMotif = list()
+    for seq in faSeqList:
+        newTestMotif.append(bestKmerSeq(seq,testMotifProfile)[0])
+    print(newTestMotif)
+    evalNewTestMotif = Scoring(pseudo,len(newTestMotif),kmerLen,newTestMotif)
+    newTestMotifEntropyScore = evalNewTestMotif.entropy()
+    newTestMotifConsensus = evalNewTestMotif.makeConsensus()
+    newTestMotifProfile = evalNewTestMotif.prProfile()
+    print(newTestMotifProfile)
+    if newTestMotifEntropyScore < bestMotifEntropyScore:
+        bestMotif = [newTestMotifConsensus,newTestMotifEntropyScore,newTestMotifProfile]
+        print(bestMotif)
+    else:
+        print("I'm done!!")
+        print(bestMotif)
+    iterCount +=1
+
+
+[{'A':float(3/9),'T':float(4/9),'C':float(1/9),'G':float(1/9)},{'A':float(2/9),'T':float(4/9),'C':float(1/9),'G':float(2/9)}]
