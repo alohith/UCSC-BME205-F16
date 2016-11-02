@@ -3,23 +3,40 @@
 # File:Rosalind-TheoreticalAAspectrum.py
 #  executable: Rosalind-TheoreticalAAspectrum.py <input >output
 # Purpose: Find the Theoretical spectrum of a given amino acid string.
-#   stdout: Theoretical spectrum of amino acid sequence
+#   stdout: Theoretical spectrum of cyclic amino acid sequence
 #
 # Author:       Akshar Lohith
 # Group(sounding boards): Lauren Sanders, Roger Volden
 # History:      AL 10/29/2016 Created
 #
-#Program flow method
 ########################################################################
 import sys
 class CycloPeptide:
-    """docstring for CycloPeptide."""
+    """
+       Class CycloPeptide handles peptide strings and spectrums for various outputs
+       to solve Rosalind textbook track problems of the ba4 problem set stem.
+       input:
+           amino acid sequence.
+
+       class attributes:
+           aa2IntMass: dictionary coding single amino acid string character to interger mass.
+           aasingle2triple: dictionary converting aminoAcid notation from single-char to triple-char.
+           aatriple2single: dictionary converting aminoAcid notation from triple-char to single-char.
+           RNAcodonTable: dictionary converting 3-nucleotide RNA string to triple-char AA string.
+           DNAcodonTable: dictionary converting 3-nucleotide DNA string to triple-char AA string.
+
+       class functions:
+            makeTheoreticalSpectrum(peptideSequence, boolean): boolean defaults to False, returning a
+                spectrum for a linear peptide sequence.
+
+    """
     # Single aminoAcid to interger mass
     aa2IntMass = {'G':57,'A':71,'S':87,'P':97,'V':99,'T':101,'C':103,'I':113,'L':113,
               'N':114,'D':115,'K':128,'Q':128,'E':129,'M':131,'H':137,'F':147,
               'R':156,'Y':163,'W':186}
+
     # As written, these are accessed as class attributes, for example:
-    # ProteinParam.aa2mw['A'] or ProteinParam.mwH2O
+    # CycloPeptide.aasingle2triple['A']
     # Taken from BME160 ProteinParams class.
     RNAcodonTable = {
     #                        Second Base
@@ -65,24 +82,35 @@ class CycloPeptide:
         'GTA':'Val', 'GCA':'Ala', 'GAA':'Glu', 'GGA':'Gly',
         'GTG':'Val', 'GCG':'Ala', 'GAG':'Glu', 'GGG':'Gly'
                       }
+
     aasingle2triple = {
         'G':'Gly', 'A':'Ala', 'V':'Val', 'L':'Leu', 'I':'Ile',
         'M':'Met', 'F':'Phe', 'W':'Trp', 'P':'Pro', 'S':'Ser',
         'T':'Thr', 'C':'Cys', 'Y':'Tyr', 'N':'Asn', 'Q':'Gln',
         'D':'Asp', 'E':'Glu', 'K':'Lys', 'R':'Arg', 'H':'His'
                       }
+
     aatriple2single = {
         'GLY':'G', 'ALA':'A', 'VAL':'V', 'LEU':'L', 'ILE':'I',
         'MET':'M', 'PHE':'F', 'TRP':'W', 'PRO':'P', 'SER':'S',
         'THR':'T', 'CYS':'C', 'TYR':'Y', 'ASN':'N', 'GLN':'Q',
         'ASP':'D', 'GLU':'E', 'LYS':'K', 'ARG':'R', 'HIS':'H'
                       }
+
     def __init__(self, aaSequence):
+        '''For this version of the CycloPeptide class an aminoAcid string is
+           passed to this constructor method. The length of the sequence is
+           calculated and also held as an attribute.'''
+
         self.aaSeq = aaSequence
         self.aaSeqLen = len(aaSequence)
 
-    def cyclicSpectrum(self, aaSeq, cyclic=False):
-        ''' TODO '''
+    def makeTheoreticalSpectrum(self, aaSeq, cyclic=False):
+        '''Return a theoreticalSpectrum given an amino acid sequence. By default
+           assumes that peptide sequence is linear. Setting cyclic to True returns
+           theoretical spectrum for cyclic peptide. Coded based on Compeau and
+           Pevzner pseudocode (2ndEd vol.1 pg 211-212)'''
+
         theoreticalSpectrum = [0]
         prefixMass = [0]
 
@@ -95,7 +123,7 @@ class CycloPeptide:
                     # print(aa)
                     prefixMass.append(prefixMass[-1]+self.aa2IntMass[testAA])
         if cyclic:
-            peptideMass = prefixMass[self.aaSeqLen] #collect the whole peptide mass
+            peptideMass = prefixMass[len(aaSeq)] #collect the whole peptide mass
 
         # add to spectrum list the mass of everything else except the added peptide prefix
         for i in range(len(aaSeq)):
@@ -112,15 +140,11 @@ class CycloPeptide:
         # print(theoreticalSpectrum)
         theoreticalSpectrum.sort()
         return " ".join([str(x) for x in theoreticalSpectrum])
-        # if len(theoreticalSpectrum) == (self.aaSeqLen*(self.aaSeqLen-1))+2:
-        #     return " ".join([str(x) for x in theoreticalSpectrum])
-        # else:
-        #     return "ERROR OCCURED. SPECTRUM TOO LONG OR TOO SHORT FOR PEPTIDE SEQUENCE."
 
 def main():
     for line in sys.stdin:
         myPeptide = CycloPeptide(line.rstrip())
-        print(myPeptide.cyclicSpectrum(line.rstrip(),True))
+        print(myPeptide.makeTheoreticalSpectrum(line.rstrip(),True))
 
 if __name__ == "__main__": # if program is launched alone, this is true and is exececuted. if not, nothing is\
 # executedf rom this program and instead objects and variables are made availableto the program that imports this.

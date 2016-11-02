@@ -9,15 +9,44 @@
 # Group(sounding boards): Alison Tang, Andrew Bailey
 # History:      AL 10/30/2016 Created
 #
-#Program flow method
 ########################################################################
 import sys
 class CycloPeptide:
-    """docstring for CycloPeptide."""
+    """
+       Class CycloPeptide handles peptide strings and spectrums for various outputs
+       to solve Rosalind textbook track problems of the ba4 problem set stem.
+       input:
+           amino acid integer mass spectrum.
+
+       class attributes:
+           aa2IntMass: dictionary coding single amino acid string character to interger mass.
+           aasingle2triple: dictionary converting aminoAcid notation from single-char to triple-char.
+           aatriple2single: dictionary converting aminoAcid notation from triple-char to single-char.
+           RNAcodonTable: dictionary converting 3-nucleotide RNA string to triple-char AA string.
+           DNAcodonTable: dictionary converting 3-nucleotide DNA string to triple-char AA string.
+           RNAcodon2AAsingle: dictionary converting 3-nucleotide RNA string to single-char AA string.
+           DNAcodon2AAsingle: dictionary converting 3-nucleotide DNA string to single-char AA string.
+
+       class functions:
+            makeTheoreticalSpectrum(peptideSequence, boolean): boolean defaults to False, returning a
+                spectrum for a linear peptide sequence.
+            mass(peptide): returns the integer mass of a given peptide sequence.
+            spectrumAApossible(): using the instantiated integer spectrum, returns
+                the set of viable aminoAcids in the spectrum from aa2IntMass dictionary.
+            cyclopeptideSequencing(): using a branch-bound algorithim, returns a set of
+                peptide sequences that can be indicated by instantiated spectrum.
+            aaMassChain(): takes the set of peptide sequences given by cyclopeptideSequencing()
+                and converts them to aminoAcid integer mass chains. (ex. '113-128-186')
+            peptideEncoding(nucleotideType,nucleotideSequence): returns to user the nucleotide
+                sequences in all reading frames (including revComp) that codes for the aminoAcid
+                given to object instantiation. (depreciated for cyclopeptideSequencing problem)
+
+    """
     # Single aminoAcid to interger mass
     aa2IntMass = {'G':57,'A':71,'S':87,'P':97,'V':99,'T':101,'C':103,'I':113,'L':113,
               'N':114,'D':115,'K':128,'Q':128,'E':129,'M':131,'H':137,'F':147,
               'R':156,'Y':163,'W':186}
+
     aasingle2triple = {
         'G':'Gly', 'A':'Ala', 'V':'Val', 'L':'Leu', 'I':'Ile',
         'M':'Met', 'F':'Phe', 'W':'Trp', 'P':'Pro', 'S':'Ser',
@@ -25,6 +54,7 @@ class CycloPeptide:
         'D':'Asp', 'E':'Glu', 'K':'Lys', 'R':'Arg', 'H':'His',
         '*':'---'
                       }
+
     aatriple2single = {
         'GLY':'G', 'ALA':'A', 'VAL':'V', 'LEU':'L', 'ILE':'I',
         'MET':'M', 'PHE':'F', 'TRP':'W', 'PRO':'P', 'SER':'S',
@@ -32,6 +62,7 @@ class CycloPeptide:
         'ASP':'D', 'GLU':'E', 'LYS':'K', 'ARG':'R', 'HIS':'H',
         '---':'*'
                       }
+
     # As written, these are accessed as class attributes, for example:
     # CycloPeptide.aasingle2triple['A']
     # Taken from BME160 ProteinParams class.
@@ -79,13 +110,22 @@ class CycloPeptide:
         'GTA':'Val', 'GCA':'Ala', 'GAA':'Glu', 'GGA':'Gly',
         'GTG':'Val', 'GCG':'Ala', 'GAG':'Glu', 'GGG':'Gly'
                       }
+
     RNAcodon2AAsingle = dict()
     DNAcodon2AAsingle = dict()
+
     for key, value in RNAcodonTable.items():
         RNAcodon2AAsingle.update({key:aatriple2single[value.upper()]})
+
     for key, value in DNAcodonTable.items():
         DNAcodon2AAsingle.update({key:aatriple2single[value.upper()]})
+
     def __init__(self, aaSequenceSpectrum):
+        '''For this version of the CycloPeptide class an aminoAcid spectrum is
+           passed to this constructor method. The spectrum string is converted
+           to an interger list of containing each spectrum mass to be used by
+           attribute functions.'''
+
         self.aaSpectrum = aaSequenceSpectrum.split(' ')
         self.intAASpectrum = [int(mass) for mass in self.aaSpectrum]
 
@@ -124,13 +164,10 @@ class CycloPeptide:
         # print(theoreticalSpectrum)
         theoreticalSpectrum.sort()
         return " ".join([str(x) for x in theoreticalSpectrum])
-        # if len(theoreticalSpectrum) == (self.aaSeqLen*(self.aaSeqLen-1))+2:
-        #     return " ".join([str(x) for x in theoreticalSpectrum])
-        # else:
-        #     return "ERROR OCCURED. SPECTRUM TOO LONG OR TOO SHORT FOR PEPTIDE SEQUENCE."
 
     def mass(self,peptide):
         '''Return interger mass of peptide using aa2IntMass dictionary.'''
+
         mass = 0
         for aa in peptide:
             mass += self.aa2IntMass[aa]
@@ -139,6 +176,7 @@ class CycloPeptide:
     def spectrumAApossible(self):
         """Return a set of possible aminoAcids given the interger spectrum and
            using the amino acid to interger mass dictionary."""
+
         possibleAA = set()
         for mass in self.intAASpectrum:
             for aa, intMass in self.aa2IntMass.items():
@@ -149,6 +187,7 @@ class CycloPeptide:
     def aaMassChain(self):
         """Return a set of peptides by interger mass chains from the
            cyclopeptideSequencing function."""
+
         massChainSet = set()
         for peptide in self.cyclopeptideSequencing():
             massChain = list()
@@ -161,6 +200,7 @@ class CycloPeptide:
         '''Return a set of cyclopeptides that can fit the spectrum. Code follows
            pseudocode given by Compeau and Pevzner. Assistance in completing this
            module given by Alison Tang, and Andrew Bailey'''
+
         # Initialize empty set containers and potential aa additions available given spectrum
         peptides = set()
         growingSeeds = self.spectrumAApossible()
@@ -213,15 +253,12 @@ class CycloPeptide:
             # peptides growable are now the ones that have passed processing for ill fitting spectra
             peptides = tempPeptides
 
-            # print(sorted(tempPeptides),'trimmedSet')
-            # print(sorted(bestMatchingPeptides),'BestSet')
-            # break
-
         return bestMatchingPeptides
 
     def peptideEncoding(self, nucleotideType,nucleotideSeq):
         '''Return the nucleotide sequnces in a DNA (or RNA) string that code for
            the given peptide sequnce.'''
+
         sequence = nucleotideSeq
         if nucleotideType == 'DNA':
             # initialize empty lists for pulling out aa sequences
@@ -329,7 +366,9 @@ class CycloPeptide:
             return peptideSequenceFound
 
 def rCompSeq(seq, nucType='DNA'):
-    ''' Returns the reverse complement sequence of nucleotide string'''
+    '''Returns the reverse complement sequence of a given nucleotide string.
+       Default string type assumed is DNA.'''
+
     if nucType == 'DNA':
         bases = {'A':'T', 'T':'A', 'G':'C','C':'G'}
     elif nucType == 'RNA':
