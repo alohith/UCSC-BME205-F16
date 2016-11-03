@@ -69,6 +69,23 @@ class FastQreader():
         file = sys.stderr)
         return "Processed {} complete FastQ records.".format(self.recordCount)
 
+    def checkHeaderLineBadSequence(self, headerIsSeqLine):
+        '''Check if header line is a sequence line'''
+
+        isSequence = {True:0, False:0}
+        for base in headerIsSeqLine:
+            if base in set("ACTGUN"):
+                isSequence[True] +=1
+            else:
+                isSequence[False] +=1
+
+        if isSequence[True] > isSequence[False]:
+            print("Sequence line found at line {} without header. Added to bad line count.".format(self.totalLineCount), file= sys.stderr)
+            self.badSequenceCount +=1
+
+        else:
+            self.badSequenceCount +=1
+
     def readChunk (self):
         '''
         Using filename given to Class object, read through the fastq file and returns each
@@ -85,13 +102,18 @@ class FastQreader():
             #Increment the counter for lines in the file.
             self.totalLineCount +=1
 
-            if lineCounter == 1 and line.startswith('@'):
-                #Found a header line, check if ':' is in the first element
-                #and merge the first 2 elements if not with a ':' separator
-                if ':' not in line.rstrip().split(' ')[0]:
-                    header = ':'.join(line.rstrip().split(' ')[0:2])
-                else: #Hold the headerline without the comment
-                    header = line.rstrip().split(' ')[0]
+            if lineCounter == 1:
+                if line.startswith('@'):
+                    #Found a header line, check if ':' is in the first element
+                    #and merge the first 2 elements if not with a ':' separator
+                    if ':' not in line.rstrip().split(' ')[0]:
+                        header = ':'.join(line.rstrip().split(' ')[0:2])
+                    else: #Hold the headerline without the comment
+                        header = line.rstrip().split(' ')[0]
+                else: #catch odd cases where a nucleotide sequence is present instead of header
+                    lineCounter = 0
+                    self.checkHeaderLineBadSequence(line.rstrip())
+                    continue
 
             elif lineCounter == 2:
                 #Check if nucleotide sequence line is valid after replacing ambigious bases
@@ -144,24 +166,6 @@ class FastQreader():
                 print("WARNING: Empty line found at line: {}".format(self.totalLineCount), file= sys.stderr)
                 continue;
 
-            elif lineCounter==1: #catch odd cases where a nucleotide sequence is present instead of header
-                lineCounter = 0
-                isSequence = {True:0, False:0}
-
-                for base in line.rstrip():
-                    if base in set("ACTGUN"):
-                        isSequence[True] +=1
-                    else:
-                        isSequence[False] +=1
-
-                if isSequence[True] > isSequence[False]:
-                    print("Sequence line found at line {} without header. Added to bad line count.".format(self.totalLineCount), file= sys.stderr)
-                    self.badSequenceCount +=1
-                    continue;
-
-                else:
-                    self.badSequenceCount +=1
-                    continue;
             else: #crash and burn if really out of phase/a header line does not have a '@' charcter
                 raise sys.exit("ERROR: '@' not in first column for '{}'. Line #: {} ".\
                 format(line, self.totalLineCount))
@@ -169,6 +173,7 @@ class FastQreader():
     def fastaOut(self, header, sequence):
         '''Return to caller modified header line for fasta header type and the
             nucleotide sequence, unchanged '''
+
         return ('>'+header[1:],sequence)
 
 class PhredQuality(object):
@@ -237,13 +242,9 @@ class PhredQuality(object):
 
             elif self.outputType == '-P33out' or self.outputType == '--PHRED33output':
                 return self.S64toP33(self.inQualSeq)
-        #else:
-        #    pass
 
     def P33toP64(self, Qseq):
         '''Return tuple with corrected quality sequence line for P33 input and P64 output.'''
-        if False: #functionality can be turned off for testing.
-            return pass
 
         translator = str.maketrans("".join([chr(x) for x in range(33,98)]),\
                     "".join([chr(y) for y in range(64,129)]))
@@ -256,8 +257,7 @@ class PhredQuality(object):
 
     def P64toP33(self, Qseq):
         '''Return tuple with corrected quality sequence line for P64 input and P33 output.'''
-        if False: #functionality can be turned off for testing.
-            return pass
+
         translator = str.maketrans("".join([chr(x) for x in range(64,129)]),\
                      "".join([chr(y) for y in range(33,98)]))
         return (self.readHeader,self.inReadSeq, self.qualHeader,str(Qseq.translate(translator)))
@@ -269,8 +269,7 @@ class PhredQuality(object):
 
     def P64BtoP64(self, Qseq, readSeq):
         '''Return tuple with corrected quality sequence line for P64 with B offset input and P64 output.'''
-        if False: #functionality can be turned off for testing.
-            return pass
+
         corReadSeq = list()
         corQseq = list()
         for base, score in zip(list(readSeq), list(Qseq)):
@@ -288,8 +287,6 @@ class PhredQuality(object):
 
     def P64BtoP33(self, Qseq, readSeq):
         '''Return tuple with corrected quality sequence line for P64 with B offset input and P33 output.'''
-        if False: #functionality can be turned off for testing.
-            return pass
 
         corReadSeq = list()
         corQseq = list()
@@ -303,12 +300,10 @@ class PhredQuality(object):
                 corQseq.append(score)#otherwise take the existing quality score
         translator = str.maketrans("".join([chr(x) for x in range(64,129)]),\
                      "".join([chr(y) for y in range(33,98)]))
-        return (self.readHeader,''.join(corReadSeq), self.qualHeader, str(corQseq.translate(translator)))
+        return (self.readHeader,''.join(corReadSeq), self.qualHeader, ''.join(corQseq).translate(translator))
 
     def S64toP33(self, Qseq):
         '''Return tuple with corrected quality sequence line for Solexa 64 input and P33 output.'''
-        if False: #functionality can be turned off for testing.
-            return pass
         from math import log10
         solexaScore =list() # create list to contain converted Solexa to PHred scores
         for code, score in zip(''.join([str(chr(x)) for x in range(59,127)]), range(-5,63)):
@@ -319,8 +314,6 @@ class PhredQuality(object):
 
     def S64toP64(self, Qseq):
         '''Return tuple with corrected quality sequence line for Solexa 64 input and P64 output.'''
-        if False: #functionality can be turned off for testing.
-            return pass
         from math import log10
         solexaScore =list()# create list to contain converted Solexa to PHred scores
         for code, score in zip(''.join([str(chr(x)) for x in range(59,127)]), range(-5,63)):
@@ -384,23 +377,24 @@ def main(myCommandLine=None):
     else :
         myCommandLine = CommandLine(['-h'])
 
+    try:
+        usrOptions = myCommandLine.args
+        #Instantiate the generator object to print out fastq reads
+        fileInObj = FastQreader(sys.stdin,(usrOptions['usrInputType'],usrOptions['usrWriteType']))
+        for record in fileInObj.readChunk():
+            if usrOptions['usrFastaOpt']: # if user specifies to output a fasta file, fasta file will be generated instead of converted fastq
+                print('\n'.join(fileInObj.fastaOut(record[0],record[1])))
+            else:
+                print(str(record[0]))
+                print(str(record[1]))
+                print(str(record[2]))
+                print(str(record[3]))
 
+        print(fileInObj.giveChunks(), file= sys.stderr)
 
-    #print(myCommandLine.args)  # print the parsed argument string .. as there is nothing better to do
-    usrOptions = myCommandLine.args
-    #Instantiate the generator object to print out fastq reads
-    fileInObj = FastQreader(sys.stdin,(usrOptions['usrInputType'],usrOptions['usrWriteType']))
-    for record in fileInObj.readChunk():
-        if usrOptions['usrFastaOpt']: # if user specifies to output a fasta file, fasta file will be generated instead of converted fastq
-            print('\n'.join(fileInObj.fastaOut(record[0],record[1])))
-        else:
-            print(str(record[0]))
-            print(str(record[1]))
-            print(str(record[2]))
-            print(str(record[3]))
-
-    print(fileInObj.giveChunks(), file= sys.stderr)
-    raise SystemExit
+    except Exception as errorInstance:
+        print(errorInstance, file= sys.stderr)
+        raise SystemExit
 if __name__ == "__main__":
     main();
     raise SystemExit
