@@ -59,8 +59,6 @@ class TreeBuilder():
             node = self.nodeSpecies[node]
 
         childs = list(node.childLeafsOut())
-        # print(len(childs))
-
         if len(childs) == 0:
             return node.printNode()
         else:
