@@ -1,0 +1,27 @@
+trace all edges out of source
+
+nodelist =[node]
+nextnode =[]
+for x in nodelist
+   for edge in outedges
+      nextnode.append(edge.outNode)
+      if edge.outNode.Maxweight < (x.Maxweight +edge.weight):
+          edge.outNode.Maxweight = (x.Maxweight +edge.weight)
+if len(nextNode) ==0:
+   return True (or return the max value)
+
+else:
+   recall fucntion(nextnode)
+
+traceback from sink:
+self.finalPath =[sink]
+
+for edge in Sink.inEdges:
+   if sink.weight ==(edge.inNode.Maxweight-edge.weight):
+      self.finalPath.append(edge.inNode)   
+      if edge.inNode != self.sourceNode:
+         recall traceback(edge.inNode)
+      else:
+         self.finalPath.reverse()
+	'->'.join(self.finalPath)
+      
