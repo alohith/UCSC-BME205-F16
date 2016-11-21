@@ -32,6 +32,7 @@ class Node:
             sets with a node object to connect.
         updateParentDistance(): update the distance of the parent node.
         getParentDistance(): return the distance of the parent node to the node.
+        newick(): format the newick format of the node and its childLeafs.
     '''
     def __init__(self,name):
         self.name = name
@@ -62,6 +63,20 @@ class Node:
         '''Return the Parent node distance.'''
         return self.parentDistance
 
+    def newick(self):
+        '''Recursive function to return to format the tree in Newick format.
+            format used: (A:0.1,B:0.2,(C:0.3,D:0.4):0.5);  distances and leaf names.
+            Credit Ed Rice for pseudocode/temp code in TA office hours.'''
+
+        childs = list(self.childLeafsOut())
+        if len(childs) == 0:
+            return self.printNode()
+        else:
+            return '('+childs[0].newick()+\
+                ':{:f}'.format(childs[0].getParentDistance())+','\
+                +childs[1].newick()+\
+                ':{:f}'.format(childs[1].getParentDistance())+')'
+
 class TreeBuilder():
     """
         Class to create TreeBuilder objects, that build a tree of nodes.
@@ -76,8 +91,8 @@ class TreeBuilder():
             are not destroyed after merging.)
 
         TreeBuilder class has functions:
-        newick(node,firstNode): Node is the node to check/print, firstNode is
-            boolean to tell if this is the root to start from.
+        printNewick(): Function that returns tree in newick format using newick
+            function of node class.
         findTheRoot(): calls mergeNodes() until there is only 1 node left.
         makeQMatrix(): calculate a Q matrix from the size matrix.
         makeTreeSizeMatrix(): calculate the size matrix.
@@ -96,22 +111,12 @@ class TreeBuilder():
         self.nodesExhausted = dict()
         self.nodeSpecies.update({row[0]:Node(row[0]) for row in self.distanceMatrix})
 
-    def newick(self,node,firstNode):
-        '''Recursive function to return to format the tree in Newick format.
-            format used: (A:0.1,B:0.2,(C:0.3,D:0.4):0.5);  distances and leaf names.
-            Credit Ed Rice for pseudocode/temp code in TA office hours.'''
-        if firstNode:
-            # print(self.nodeSpecies.keys())
-            node = self.nodeSpecies[node]
-
-        childs = list(node.childLeafsOut())
-        if len(childs) == 0:
-            return node.printNode()
-        else:
-            return '('+self.newick(childs[0],False)+\
-                ':{:.3f}'.format(childs[0].getParentDistance())+','\
-                +self.newick(childs[1],False)+\
-                ':{:.3f}'.format(childs[1].getParentDistance())+')'
+    def printNewick(self):
+        '''Return the newick format output for the tree. Uses newick function of
+            node class to format the output.'''
+        # print(self.nodeSpecies.keys())
+        rootNode = self.findTheRoot()
+        return self.nodeSpecies[rootNode].newick()
 
     def findTheRoot(self):
         '''Functions to merge nodes from distanceMatrix until only root exists.
@@ -301,7 +306,49 @@ class TreeBuilder():
         self.distanceMatrix = newDistanceMatrix
         self.numSpecies -= 1
 
-def main():
+class CommandLine(object) :
+    '''
+    Handle the command line, usage and help requests.
+
+    CommandLine uses argparse, now standard in 2.7 and beyond.
+    it implements a standard command line argument parser with various argument options,
+    a standard usage and help, and an error termination mechanism do-usage_and_die.
+
+    attributes:
+    myCommandLine.args is a dictionary which includes each of the available command line arguments as
+    myCommandLine.args['option']
+
+    methods:
+    do_usage_and_die()
+    prints usage and help and terminates with an error.
+    '''
+
+    def __init__(self, inOpts=None) :
+        '''
+        CommandLine constructor.
+        Implements a parser to interpret the command line argv string using argparse.
+        '''
+        import argparse
+        self.parser = argparse.ArgumentParser(\
+                    description = 'This program will return a Newick format \
+                    phlyogentic tree from a user provided distance matrix.', \
+                    add_help = True, #default is True
+                     prefix_chars = '-',
+                     usage = '%(prog)s [options] <input >output'
+                                              )
+
+        if inOpts is None :
+            self.args = vars(self.parser.parse_args()) # parse the CommandLine options
+        else :
+            self.args = vars(self.parser.parse_args(inOpts)) # parse the input options
+
+def main(myCommandLine=None):
+    
+    if myCommandLine is None:
+        myCommandLine = CommandLine()
+    else :
+        myCommandLine = CommandLine(['-h'])
+
     distanceMatrix = list()
     for line in sys.stdin:
         row = line.rstrip().split('\t')
@@ -314,8 +361,8 @@ def main():
         distanceMatrix.append(rowTemp)
     # print(distanceMatrix, end='\n\n')
     newTree = TreeBuilder(distanceMatrix)
-    treeRoot = newTree.findTheRoot()
-    print(newTree.newick(treeRoot, True),end=';\n')
+    # treeRoot = newTree.findTheRoot()
+    print(newTree.printNewick(),end=';\n')
 
 if __name__ == "__main__": # if program is launched alone, this is true and is exececuted. if not, nothing is\
 # executedf rom this program and instead objects and variables are made availableto the program that imports this.

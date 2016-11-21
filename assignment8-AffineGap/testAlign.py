@@ -10,6 +10,7 @@
 #
 ########################################################################
 import sys
+import aligner
 class CommandLine(object) :
     '''
     Handle the command line, usage and help requests.
@@ -32,16 +33,24 @@ class CommandLine(object) :
         CommandLine constructor.
         Implements a parser to interpret the command line argv string using argparse.
         '''
-        import random
         import argparse
         self.parser = argparse.ArgumentParser(description = 'This program will run a randomized motif search on a set of fasta records to find the motif with the lowest entropy score, as defined by Shannon\'s entropy formula', add_help = True, #default is True
                                              prefix_chars = '-',
                                              usage = '%(prog)s [options] <input >output'
                                                   )
-        self.parser.add_argument('-i', '--iterations', type=int, action = 'store', default=1000, dest='numIterate', help='Number of times to run the motif search before returning a consensus sequence. Default is 1000 iterations.')
-        self.parser.add_argument('-p', '--pseudoCount', type=float, action = 'store', default=1, dest='definedPseudoCounts', help='Define a pseudo count to use for evaluation of the kmers in the sequence. Default is 1 pseudo count.')
-        self.parser.add_argument('-k', '--kmerLength', type=int, action='store', default=13, dest='usrKlength',help='Set what kmer size to use to find the motif. This is a required parameter.')
-        self.parser.add_argument('-r', '--randomShuffle', action='store_true', dest='shuffleOpt', help='Run the random motif search algorithim on shuffled sequences.')
+        self.parser.add_argument('-s', '--substMatrix', action = 'store',\
+                        required=True, dest='matrixSub',\
+                        help='Substitution Matrix File to be used (BLOSUM or similar).')
+        self.parser.add_argument('-o', '--open', type=float, action = 'store', \
+                default=10, dest='openGapCost', \
+                help='Gap opening penalty. Default is 10.0.')
+        self.parser.add_argument('-e', '--extend', type=float, action='store',\
+                default=2, dest='extendGapCost',\
+                help='Gap extension penalty. Default is 2.0.')
+        self.parser.add_argument('-a', '--align', action='store', default='global',\
+                choices=['local','global','l','g'], dest='alignOption', \
+                help='Run the alignment alogorithim as either a local(or l) \
+                or global(or g) alignment. Default is global.')
 
         if inOpts is None :
             self.args = vars(self.parser.parse_args()) # parse the CommandLine options
@@ -72,11 +81,30 @@ class Usage(Exception):
     '''
     def __init__(self, msg):
         self.msg = msg
-        
+
 def main():
+    matrix = sys.stdin
+    matrixDict = dict()
+    keys = matrix.readline().rstrip().split()
+    for aakey in keys:
+        print(aakey, end=' hellp\n')
+        matrixDict[aakey] = dict()
+        for newaa in keys.copy():
+            matrixDict[aakey].update({newaa:0})
+    # for line in matrix:
+        # values =line.rstrip().split(' ')
+
+
+    # print(matrixDict)
+
+    # if myCommandLine is None:
+    #     myCommandLine = CommandLine()
+    # else :
+    #     myCommandLine = CommandLine(['-h'])
+
     pass
 
 if __name__ == "__main__": # if program is launched alone, this is true and is exececuted. if not, nothing is\
 # executedf rom this program and instead objects and variables are made availableto the program that imports this.
     main();
-    raise SystemExit
+    # raise SystemExit
